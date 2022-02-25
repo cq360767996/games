@@ -1,52 +1,66 @@
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
 enum Msg {
-    AddOne,
+	AddOne,
+	MinusOne,
 }
 
 struct Model {
-    // `ComponentLink` is like a reference to a component.
-    // It can be used to send messages to the component
-    link: ComponentLink<Self>,
-    value: i64,
+	value: i64,
+	node_ref: NodeRef,
 }
 
 impl Component for Model {
-    type Message = Msg;
-    type Properties = ();
+	type Message = Msg;
+	type Properties = ();
 
-    fn create(_props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        Self { link, value: 0 }
-    }
+	fn create(_ctx: &Context<Self>) -> Self {
+		Self {
+			value: 0,
+			node_ref: NodeRef::default(),
+		}
+	}
 
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        match msg {
-            Msg::AddOne => {
-                self.value += 1;
-                // the value has changed so we need to
-                // re-render for it to appear on the page
-                true
-            }
-        }
-    }
+	fn update(&mut self, _ctx: &Context<Self>, msg: Self::Message) -> bool {
+		match msg {
+			Msg::AddOne => {
+				self.value += 1;
+				// the value has changed so we need to
+				// re-render for it to appear on the page
+				true
+			}
+			Msg::MinusOne => {
+				self.value -= 1;
+				true
+			}
+		}
+	}
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        // Should only return "true" if new properties are different to
-        // previously received properties.
-        // This component has no properties so we will always return "false".
-        false
-    }
+	fn view(&self, ctx: &Context<Self>) -> Html {
+		// This gives us a component's "`Scope`" which allows us to send messages, etc to the component.
+		let link = ctx.link();
+		let plus = link.callback(|_| Msg::AddOne);
+		let minus = link.callback(|_| Msg::MinusOne);
+		html! {
+				<div>
+					<input ref={self.node_ref.clone()} value={1} />
+					<button onclick={plus}>{ "+1" }</button>
+					<button onclick={minus}>{ "-1" }</button>
+					<p>{ self.value }</p>
+				</div>
+		}
+	}
 
-    fn view(&self) -> Html {
-        html! {
-            <div>
-                <button onclick=self.link.callback(|_| Msg::AddOne)>{ "+1" }</button>
-                <p>{ self.value }</p>
-            </div>
-        }
-    }
+	fn rendered(&mut self, _: &Context<Self>, first_render: bool) {
+		if first_render {
+			if let Some(input) = self.node_ref.cast::<HtmlInputElement>() {
+				input.focus();
+			}
+		}
+	}
 }
 
 fn main() {
-    yew::start_app::<Model>();
+	yew::start_app::<Model>();
 }
