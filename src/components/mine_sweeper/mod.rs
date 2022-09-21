@@ -1,27 +1,26 @@
-use yew::{function_component, html, use_state, Callback};
+use yew::{function_component, html, Html};
+
+mod styles;
 
 #[function_component(MineSweeper)]
 pub fn mine_sweeper() -> Html {
-  let counter = use_state(|| 0);
+  let items = (1..=100).collect::<Vec<i32>>();
 
-  let plus = {
-    let counter = counter.clone();
-    Callback::from(move |_| counter.set(*counter + 1))
-  };
+  // let counter = use_state(|| 0);
 
-  let minus = {
-    let counter = counter.clone();
-    Callback::from(move |_| counter.set(*counter - 1))
-  };
+  // let plus = {
+  //   let counter = counter.clone();
+  //   Callback::from(move |_| counter.set(*counter + 1))
+  // };
+
+  // let minus = {
+  //   let counter = counter.clone();
+  //   Callback::from(move |_| counter.set(*counter - 1))
+  // };
 
   html! {
-      <div>
-        <button onclick={plus}>{ "plus" }</button>
-        <button onclick={minus}>{ "minus" }</button>
-          <p>
-              <b>{ "Current value: " }</b>
-              { *counter }
-          </p>
-      </div>
+    <div class={styles::container()}>
+      {items.iter().map(|order|html!(<div key={order.to_string()}></div>)).collect::<Html>()}
+    </div>
   }
 }

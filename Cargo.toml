@@ -18,3 +18,8 @@ features = [
   "MouseEvent",
   "DomRect",
 ]
+
+[dependencies.stylist]
+version = "0.10.1"
+
+features = ["yew_integration"]
