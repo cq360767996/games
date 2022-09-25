@@ -6,20 +6,8 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+getrandom = {version = "0.2", features = ["js"]}
+rand = "0.8.5"
+stylist = {version = "0.10.1", features = ["yew_integration"]}
+web-sys = {version = "0.3", features = ["console", "Document", "HtmlElement", "MouseEvent", "DomRect"]}
 yew = "0.19"
-
-[dependencies.web-sys]
-version = "0.3"
-
-features = [
-  "console",
-  "Document",
-  "HtmlElement",
-  "MouseEvent",
-  "DomRect",
-]
-
-[dependencies.stylist]
-version = "0.10.1"
-
-features = ["yew_integration"]

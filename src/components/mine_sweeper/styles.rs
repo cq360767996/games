@@ -14,6 +14,8 @@ pub fn container() -> Style {
         cursor: pointer;
         margin-left: -1px;
         margin-top: -1px;
+        text-align: center;
+        line-height: 50px;
       }
 
       > div:hover {
