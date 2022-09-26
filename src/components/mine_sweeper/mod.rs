@@ -1,11 +1,14 @@
 use rand::{thread_rng, Rng};
-use yew::{function_component, html, use_state, Callback, Html};
+use uuid::Uuid;
+use yew::{function_component, html, use_state, Callback, Html, UseStateHandle};
 
 mod styles;
 
+#[derive(Clone)]
 struct Mine {
   value: i32,
   is_open: bool,
+  id: String,
 }
 
 fn gen_cells() -> Vec<i32> {
@@ -61,7 +64,9 @@ fn gen_mine_cells() -> Vec<Mine> {
 
   let mut result = vec![];
   for item in result_cells.iter() {
+    let id = Uuid::new_v4().to_string();
     result.push(Mine {
+      id,
       value: *item,
       is_open: false,
     });
@@ -70,43 +75,38 @@ fn gen_mine_cells() -> Vec<Mine> {
   result
 }
 
+fn render_text(item: &Mine) -> String {
+  if item.is_open {
+    item.value.to_string()
+  } else {
+    String::from("")
+  }
+}
+
 #[function_component(MineSweeper)]
 pub fn mine_sweeper() -> Html {
   let cells = use_state(gen_mine_cells);
-  // let counter = use_state(|| 0);
 
-  // let plus = {
-  //   let counter = counter.clone();
-  //   Callback::from(move |_| counter.set(*counter + 1))
-  // };
-
-  // let minus = {
-  //   let counter = counter.clone();
-  //   Callback::from(move |_| counter.set(*counter - 1))
-  // };
-
-  html! {
-    <div class={styles::container()}>
-      {cells.iter().map(|item| {
+  let render_cell = move || -> Html {
+    cells
+      .iter()
+      .map(|item| {
         let handle_click = {
-          if !item.is_open {
-            let cells = cells.clone();
-            // Callback::from(move |_| cells.set(*cells));
-          }
-        };
-
-        html!(
-          <div key={item.value.to_string()}>
-            {
-              if item.is_open {
-                item.value.to_string()
-              } else {
-                String::from("")
+          let cells = cells.clone();
+          Callback::from(move |_| {
+            let mut new_cells = cells.clone();
+            for cell in new_cells.iter_mut() {
+              if cell.id == item.id {
+                cell.is_open = true;
               }
             }
-          </div>
-        )
-      }).collect::<Html>()}
-    </div>
-  }
+            cells.set(new_cells);
+          })
+        };
+        html! {<div key={item.value.to_string()} onclick={handle_click}>{render_text(&item)}</div>}
+      })
+      .collect::<Html>()
+  };
+
+  html! {<div class={styles::container()}>{render_cell()}</div>}
 }
