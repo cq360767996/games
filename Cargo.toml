@@ -7,8 +7,10 @@ version = "0.1.0"
 
 [dependencies]
 getrandom = {version = "0.2", features = ["js"]}
+log = "0.4.17"
 rand = "0.8.5"
 stylist = {version = "0.10.1", features = ["yew_integration"]}
 uuid = {version = "1.1.2", features = ["v4", "fast-rng", "macro-diagnostics"]}
+wasm-logger = "0.2.0"
 web-sys = {version = "0.3", features = ["console", "Document", "HtmlElement", "MouseEvent", "DomRect"]}
 yew = "0.19"

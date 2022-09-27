@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently 'windicss -d -f windi.config.js -o ./index.css' 'trunk serve'"
+    "dev": "concurrently \"windicss -d -f windi.config.js -o ./index.css\" \"trunk serve\""
   },
   "repository": {
     "type": "git",
