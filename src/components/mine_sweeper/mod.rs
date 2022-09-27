@@ -2,8 +2,6 @@ use rand::{thread_rng, Rng};
 use uuid::Uuid;
 use yew::{function_component, html, use_state, Callback, Html};
 
-mod styles;
-
 #[derive(Clone)]
 struct Mine {
   value: i32,
@@ -137,7 +135,13 @@ pub fn mine_sweeper() -> Html {
             cells.set(new_cells);
           })
         };
-        html! {<div key={item.id.clone()} onclick={handle_click}>{render_text(&item)}</div>}
+        html! {
+        <div
+          class="border border-gray-200 border-solid cursor-pointer
+            -ml-1px -mt-1px text-center leading-50px hover:bg-gray-300"
+          key={item.id.clone()}
+          onclick={handle_click}
+          >{render_text(&item)}</div>}
       })
       .collect::<Html>()
   };
@@ -151,7 +155,7 @@ pub fn mine_sweeper() -> Html {
           String::from("游戏中")
         }}
       </div>
-      <div class={styles::container()}>{render_cell()}</div>
+      <div class="w-500px h-500px grid grid-cols-10 grid-rows-10">{render_cell()}</div>
     </>
   }
 }

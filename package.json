@@ -1,0 +1,20 @@
+{
+  "name": "yew-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently 'windicss -d -f windi.config.js -o ./index.css' 'trunk serve'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/cq360/yew-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^7.4.0",
+    "windicss": "^3.5.6"
+  }
+}
