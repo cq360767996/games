@@ -1,0 +1,16 @@
+.cell {
+  cursor: pointer;
+  text-align: center;
+  line-height: 50px;
+  background-image: url(./assets/closed.svg);
+  background-size: cover;
+}
+
+.cell.mine {
+  background-image: url(./assets/mine.svg);
+}
+
+.cell.type0,
+.cell:active {
+  background-image: url(./assets/type0.svg);
+}

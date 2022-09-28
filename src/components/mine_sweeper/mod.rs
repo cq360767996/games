@@ -183,8 +183,7 @@ pub fn mine_sweeper() -> Html {
 
         html! {
           <div
-            class="border border-gray-200 border-solid cursor-pointer
-              -ml-1px -mt-1px text-center leading-50px hover:bg-gray-300"
+            class="cell opened"
             key={item.id.clone()}
             onclick={handle_click}
             oncontextmenu={handle_right_click}
