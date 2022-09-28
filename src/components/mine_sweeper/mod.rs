@@ -20,9 +20,13 @@ const AROUND: [(i32, i32); 8] = [
   (-1, 0),
 ];
 
+const ROWS: i32 = 10;
+const COLS: i32 = 10;
+
 fn init_cells() -> Vec<i32> {
-  let mut raw_cells = (1..=90).collect::<Vec<_>>();
-  let mut mine_cells = (1..=10).collect::<Vec<_>>();
+  let total = ROWS * COLS;
+  let mut raw_cells = (1..=(total - ROWS)).collect::<Vec<_>>();
+  let mut mine_cells = (1..=ROWS).collect::<Vec<_>>();
   raw_cells.fill(0);
   mine_cells.fill(9);
   raw_cells.append(&mut mine_cells);
@@ -42,6 +46,7 @@ fn init_cells() -> Vec<i32> {
 fn gen_mine_cells() -> Vec<Mine> {
   let cells = init_cells();
   let mut result_cells = cells.clone();
+  let total = ROWS * COLS;
 
   for (index, cell) in cells.iter().enumerate() {
     if *cell < 9 {
@@ -49,8 +54,8 @@ fn gen_mine_cells() -> Vec<Mine> {
     }
 
     for (x, y) in AROUND {
-      let current = (index as i32) + y * 10 + x;
-      if current < 0 || current >= 100 {
+      let current = (index as i32) + y * COLS + x;
+      if current < 0 || current >= total {
         continue;
       }
       let current = current as usize;
@@ -82,7 +87,25 @@ fn render_text(item: &Mine) -> String {
   }
 }
 
+fn pickup_border(index: &i32) -> Vec<usize> {
+  let mut dispatch_arr = vec![];
+  let remainder = *index % COLS;
+  if remainder == 9 {
+    dispatch_arr.push(2);
+    dispatch_arr.push(3);
+    dispatch_arr.push(4);
+  }
+
+  if remainder == 0 {
+    dispatch_arr.push(6);
+    dispatch_arr.push(7);
+    dispatch_arr.push(1);
+  }
+  dispatch_arr
+}
+
 fn open_related_cells<'a>(cells: &'a mut Vec<Mine>, index: &'a usize) {
+  let total = ROWS * COLS;
   if cells[*index].is_open {
     return;
   }
@@ -92,10 +115,16 @@ fn open_related_cells<'a>(cells: &'a mut Vec<Mine>, index: &'a usize) {
     return;
   }
 
-  for (x, y) in AROUND {
-    let current = (*index as i32) + x + y * 10;
+  let border_arr = pickup_border(&(*index as i32));
 
-    if current < 0 || current >= 100 {
+  for (i, (x, y)) in AROUND.iter().enumerate() {
+    if border_arr.contains(&i) {
+      continue;
+    }
+
+    let current = (*index as i32) + x + y * COLS;
+
+    if current < 0 || current >= total {
       continue;
     }
 
