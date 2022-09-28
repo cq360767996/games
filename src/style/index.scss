@@ -10,7 +10,7 @@
     background-image: url(./assets/type0.svg);
   }
 
-  $types: closed, mine_red, mine, type0, type1, type2, type3, type4, type5, type6, type7, type8;
+  $types: closed, flag, mine_red, mine, type0, type1, type2, type3, type4, type5, type6, type7, type8;
 
   @each $type in $types {
     &.#{$type} {

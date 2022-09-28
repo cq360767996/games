@@ -2,16 +2,17 @@ use rand::{thread_rng, Rng};
 use uuid::Uuid;
 use yew::{classes, function_component, html, use_state, Callback, Html, MouseEvent};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 enum MineValue {
   Some(i32),
   Mine(String),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 struct Mine {
   value: MineValue,
   is_open: bool,
+  flag: bool,
   id: String,
 }
 
@@ -52,24 +53,24 @@ fn init_cells() -> Vec<i32> {
 fn gen_mine_cells() -> Vec<Mine> {
   let cells = init_cells();
   let mut result_cells = cells.clone();
-  let total = ROWS * COLS;
 
   for (index, cell) in cells.iter().enumerate() {
+    let index = index as i32;
+
     if *cell < 9 {
       continue;
     }
 
-    let border_arr = pickup_border(&(index as i32));
+    let border_arr = pickup_border(&index);
 
     for (i, (x, y)) in AROUND.iter().enumerate() {
       if border_arr.contains(&i) {
+        log::info!("index = {}", index);
+        log::info!("i = {}", i);
+        log::info!("border_arr = {:?}", border_arr);
         continue;
       }
-      let current = (index as i32) + y * COLS + x;
-      if current < 0 || current >= total {
-        continue;
-      }
-      let current = current as usize;
+      let current = (index + (y * COLS) + x) as usize;
 
       if cells[current] < 9 {
         result_cells[current] += 1;
@@ -93,6 +94,7 @@ fn value_to_cells(cells: &Vec<i32>) -> Vec<Mine> {
     result.push(Mine {
       id,
       value,
+      flag: false,
       is_open: false,
     });
   }
@@ -103,7 +105,20 @@ fn value_to_cells(cells: &Vec<i32>) -> Vec<Mine> {
 fn pickup_border(index: &i32) -> Vec<usize> {
   let mut dispatch_arr = vec![];
   let remainder = *index % COLS;
-  if remainder == 9 {
+  let total = ROWS * COLS;
+  if *index < COLS {
+    dispatch_arr.push(0);
+    dispatch_arr.push(1);
+    dispatch_arr.push(2);
+  }
+
+  if total - *index - 1 < COLS {
+    dispatch_arr.push(4);
+    dispatch_arr.push(5);
+    dispatch_arr.push(6);
+  }
+
+  if remainder == COLS - 1 {
     dispatch_arr.push(2);
     dispatch_arr.push(3);
     dispatch_arr.push(4);
@@ -118,27 +133,23 @@ fn pickup_border(index: &i32) -> Vec<usize> {
 }
 
 fn open_related_cells<'a>(cells: &'a mut Vec<Mine>, index: &'a usize) {
-  let total = ROWS * COLS;
-  if cells[*index].is_open {
+  let index = *index;
+  if cells[index].is_open {
     return;
   }
 
-  cells[*index].is_open = true;
-  if let MineValue::Some(0) = cells[*index].value {
-    let border_arr = pickup_border(&(*index as i32));
+  cells[index].is_open = true;
+  if let MineValue::Some(0) = cells[index].value {
+    let index = index as i32;
+    let border_arr = pickup_border(&index);
 
     for (i, (x, y)) in AROUND.iter().enumerate() {
       if border_arr.contains(&i) {
         continue;
       }
 
-      let current = (*index as i32) + x + y * COLS;
+      let current = (index + (y * COLS) + x) as usize;
 
-      if current < 0 || current >= total {
-        continue;
-      }
-
-      let current = current as usize;
       if cells[current].is_open {
         continue;
       }
@@ -191,8 +202,14 @@ pub fn mine_sweeper() -> Html {
     };
 
     let handle_right_click = {
-      Callback::from(move |e: MouseEvent| {
-        log::info!("right: {}", e.buttons());
+      let cells = cells.clone();
+      Callback::from(move |_| {
+        let mut new_cells = (*cells).clone();
+        let cell = &mut new_cells[index];
+        if !cell.is_open {
+          cell.flag = !cell.flag;
+        }
+        cells.set(new_cells);
       })
     };
 
@@ -201,15 +218,17 @@ pub fn mine_sweeper() -> Html {
       class_names.push("cell".to_string());
 
       if item.is_open {
+        class_names.push("opened".to_string());
         match &item.value {
           MineValue::Some(i) => {
-            class_names.push("opened".to_string());
             class_names.push(format!("type{}", i));
           }
           MineValue::Mine(name) => {
             class_names.push(name.to_string());
           }
         }
+      } else if item.flag {
+        class_names.push("flag".to_string());
       }
 
       classes!(class_names)
