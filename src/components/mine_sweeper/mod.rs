@@ -1,19 +1,27 @@
 use rand::{thread_rng, Rng};
 use uuid::Uuid;
-use yew::{classes, function_component, html, use_state, Callback, Html, MouseEvent};
+use yew::{
+  classes, function_component, html, use_effect_with_deps, use_state, Callback, Html, MouseEvent,
+};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 enum MineValue {
   Some(i32),
   Mine(String),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 struct Mine {
   value: MineValue,
   is_open: bool,
   flag: bool,
   id: String,
+}
+
+enum GameState {
+  Gamimg,
+  Lose,
+  Win,
 }
 
 const AROUND: [(i32, i32); 8] = [
@@ -29,17 +37,18 @@ const AROUND: [(i32, i32); 8] = [
 
 const ROWS: i32 = 10;
 const COLS: i32 = 10;
+const TOTAL_MINES: i32 = 10;
 
-fn init_cells() -> Vec<i32> {
+fn init_values() -> Vec<i32> {
   let total = ROWS * COLS;
-  let mut raw_cells = (1..=(total - ROWS)).collect::<Vec<_>>();
-  let mut mine_cells = (1..=ROWS).collect::<Vec<_>>();
-  raw_cells.fill(0);
-  mine_cells.fill(9);
-  raw_cells.append(&mut mine_cells);
-  let mut cells = raw_cells.clone();
-  let len = raw_cells.len();
-  let enumerate_cells = raw_cells.iter().enumerate();
+  let mut raw_values = (1..=(total - TOTAL_MINES)).collect::<Vec<_>>();
+  let mut mine_values = (1..=TOTAL_MINES).collect::<Vec<_>>();
+  raw_values.fill(0);
+  mine_values.fill(9);
+  raw_values.append(&mut mine_values);
+  let mut cells = raw_values.clone();
+  let len = raw_values.len();
+  let enumerate_cells = raw_values.iter().enumerate();
 
   for (index, _) in enumerate_cells {
     let mut rng = thread_rng();
@@ -51,10 +60,10 @@ fn init_cells() -> Vec<i32> {
 }
 
 fn gen_mine_cells() -> Vec<Mine> {
-  let cells = init_cells();
-  let mut result_cells = cells.clone();
+  let values = init_values();
+  let mut result_values = values.clone();
 
-  for (index, cell) in cells.iter().enumerate() {
+  for (index, cell) in values.iter().enumerate() {
     let index = index as i32;
 
     if *cell < 9 {
@@ -65,20 +74,17 @@ fn gen_mine_cells() -> Vec<Mine> {
 
     for (i, (x, y)) in AROUND.iter().enumerate() {
       if border_arr.contains(&i) {
-        log::info!("index = {}", index);
-        log::info!("i = {}", i);
-        log::info!("border_arr = {:?}", border_arr);
         continue;
       }
       let current = (index + (y * COLS) + x) as usize;
 
-      if cells[current] < 9 {
-        result_cells[current] += 1;
+      if values[current] < 9 {
+        result_values[current] += 1;
       }
     }
   }
 
-  value_to_cells(&result_cells)
+  value_to_cells(&result_values)
 }
 
 fn value_to_cells(cells: &Vec<i32>) -> Vec<Mine> {
@@ -127,7 +133,7 @@ fn pickup_border(index: &i32) -> Vec<usize> {
   if remainder == 0 {
     dispatch_arr.push(6);
     dispatch_arr.push(7);
-    dispatch_arr.push(1);
+    dispatch_arr.push(0);
   }
   dispatch_arr
 }
@@ -168,7 +174,7 @@ fn open_all_cells(cells: &mut Vec<Mine>) {
 #[function_component(MineSweeper)]
 pub fn mine_sweeper() -> Html {
   let cells = use_state(gen_mine_cells);
-  let ended = use_state(|| false);
+  let state = use_state(|| GameState::Gamimg);
 
   let handle_contextmenu = {
     Callback::from(|e: MouseEvent| {
@@ -176,23 +182,57 @@ pub fn mine_sweeper() -> Html {
     })
   };
 
+  {
+    let cells = cells.clone();
+    let state = state.clone();
+    use_effect_with_deps(
+      move |cells| {
+        let mut st = GameState::Win;
+        let mut closed_count = 0;
+        for cell in cells.iter() {
+          if let MineValue::Mine(value) = &cell.value {
+            if value.eq("mine_red") {
+              st = GameState::Lose;
+              break;
+            }
+          }
+          if closed_count > TOTAL_MINES {
+            st = GameState::Gamimg;
+            break;
+          }
+
+          if !cell.is_open {
+            closed_count += 1;
+          }
+        }
+
+        state.set(st);
+
+        || ()
+      },
+      cells,
+    );
+  }
+
   let render_cell = |(index, item): (usize, &Mine)| {
+    let handle_opened_click = || {
+      // TODO: 处理已经打开的按钮点击事件
+    };
     // 点击事件处理
     let handle_click = {
       let cells = cells.clone();
-      let ended = (&ended).clone();
 
       Callback::from(move |_| {
         let mut new_cells = (*cells).clone();
         let cell = &mut new_cells[index];
         if cell.is_open {
+          handle_opened_click();
           return;
         }
 
         if let MineValue::Mine(_) = cell.value {
           cell.value = MineValue::Mine("mine_red".to_string());
           open_all_cells(&mut new_cells);
-          ended.set(true);
         } else {
           open_related_cells(&mut new_cells, &index);
         }
@@ -206,9 +246,11 @@ pub fn mine_sweeper() -> Html {
       Callback::from(move |_| {
         let mut new_cells = (*cells).clone();
         let cell = &mut new_cells[index];
-        if !cell.is_open {
-          cell.flag = !cell.flag;
+        if cell.is_open {
+          handle_opened_click();
+          return;
         }
+        cell.flag = !cell.flag;
         cells.set(new_cells);
       })
     };
@@ -247,14 +289,24 @@ pub fn mine_sweeper() -> Html {
   html! {
     <>
       <div>
-        {if *ended {"游戏结束"} else {"游戏中"}}
+        {
+          match *state {
+            GameState::Gamimg => "游戏中",
+            GameState::Lose => "你输了",
+            GameState::Win => "你赢了",
+          }
+        }
       </div>
-      <div
-        class="w-240px h-240px grid grid-cols-10 grid-rows-10"
-        oncontextmenu={handle_contextmenu}
-      >
-        {cells.iter().enumerate().map(render_cell).collect::<Html>()}
-      </div>
+      <header></header>
+      <section class="flex">
+        // <div class="hor h-240px w-4px" />
+        <div
+          class="w-240px h-240px grid grid-cols-10 grid-rows-10"
+          oncontextmenu={handle_contextmenu}
+        >
+          {cells.iter().enumerate().map(render_cell).collect::<Html>()}
+        </div>
+      </section>
     </>
   }
 }
