@@ -1,0 +1,21 @@
+.cell {
+  cursor: pointer;
+  text-align: center;
+  width: 24px;
+  height: 24px;
+  background-image: url(./assets/closed.svg);
+  background-size: cover;
+
+  &:not(.opened):active {
+    background-image: url(./assets/type0.svg);
+  }
+
+  $types: closed, mine_red, mine, type0, type1, type2, type3, type4, type5, type6, type7, type8;
+
+  @each $type in $types {
+    &.#{$type} {
+      background-image: url(./assets/#{$type}.svg);
+    }
+  }
+}
+
