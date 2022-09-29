@@ -1,28 +1,11 @@
 use rand::{thread_rng, Rng};
+use types::{GameState, Mine, MineValue};
 use uuid::Uuid;
 use yew::{
   classes, function_component, html, use_effect_with_deps, use_state, Callback, Html, MouseEvent,
 };
 
-#[derive(Clone, Debug, PartialEq)]
-enum MineValue {
-  Some(i32),
-  Mine(String),
-}
-
-#[derive(Clone, Debug, PartialEq)]
-struct Mine {
-  value: MineValue,
-  is_open: bool,
-  flag: bool,
-  id: String,
-}
-
-enum GameState {
-  Gamimg,
-  Lose,
-  Win,
-}
+mod types;
 
 const AROUND: [(i32, i32); 8] = [
   (-1, -1),
@@ -297,16 +280,49 @@ pub fn mine_sweeper() -> Html {
           }
         }
       </div>
-      <header></header>
-      <section class="flex">
-        // <div class="hor h-240px w-4px" />
-        <div
-          class="w-240px h-240px grid grid-cols-10 grid-rows-10"
-          oncontextmenu={handle_contextmenu}
-        >
-          {cells.iter().enumerate().map(render_cell).collect::<Html>()}
+
+      <div class="flex">
+        <div class="up_left" />
+        <div class="hor w-240px" />
+        <div class="up_right" />
+      </div>
+      <div class="flex">
+        <div class="vert h-40px"/>
+        <div class="silver w-240px flex justify-between px-4.5px items-center box-border">
+          <div class="nums flex justify-around items-center">
+            <div class="num d1" />
+            <div class="num d2" />
+            <div class="num d3" />
+          </div>
+          <div class="face"></div>
+          <div class="nums flex justify-around items-center">
+            <div class="num d4" />
+            <div class="num d5" />
+            <div class="num d6" />
+          </div>
         </div>
-      </section>
+        <div class="vert h-40px" />
+      </div>
+      <div class="flex">
+        <div class="t_left" />
+        <div class="hor w-240px" />
+        <div class="t_right" />
+      </div>
+      <div class="flex">
+        <div class="vert h-240px w-18px" />
+          <div
+            class="w-240px h-240px grid grid-cols-10 grid-rows-10"
+            oncontextmenu={handle_contextmenu}
+          >
+            {cells.iter().enumerate().map(render_cell).collect::<Html>()}
+          </div>
+        <div class="vert h-240px" />
+      </div>
+      <div class="flex">
+        <div class="bottom_left" />
+        <div class="hor w-240px" />
+        <div class="bottom_right" />
+      </div>
     </>
   }
 }

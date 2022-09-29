@@ -21,8 +21,71 @@
 
 .hor {
   background-image: url(./assets/border_hor_2x.png);
+  background-size: 100% 100%;
+  border-collapse: separate;
+  height: 16.5px;
 }
 
 .vert {
   background-image: url(./assets/border_vert_2x.png);
+  background-size: 100% 100%;
+  border-collapse: separate;
+  width: 18px;
+}
+
+@mixin block {
+  width: 18px;
+  height: 16.5px;
+  background-size: 100% 100%;
+}
+
+$directions: bottom_left, bottom_right, up_left, up_right;
+@each $direction in $directions {
+  .#{$direction} {
+    @include block;
+    background-image: url(./assets/corner_#{$direction}_2x.png);
+  }
+}
+
+$sides: t_left, t_right;
+@each $side in $sides {
+  .#{$side} {
+    @include block;
+    background-image: url(./assets/#{$side}_2x.png);
+  }
+}
+
+.silver {
+  background-color: silver;
+}
+
+.nums {
+  background-image: url(./assets/nums_background.svg);
+  background-size: 100% 100%;
+  width:61px;
+  height: 37.5px;
+}
+
+.face {
+  width: 31.5px;
+  height: 31.5px;
+  background-size: 100% 100%;
+
+  $faces: unpressed, lose, win;
+
+  @each $face in $faces {
+    background-image: url(./assets/face_#{$face}.svg);
+  }
+}
+
+.num {
+  width: 16.5px;
+  height: 31.5px;
+  background-size: 100% 100%;
+}
+
+@for $i from 0 through 9 {
+  .d#{$i} {
+    background-image: url(./assets/d#{$i}.svg);
+  }
 }
