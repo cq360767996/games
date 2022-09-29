@@ -7,20 +7,35 @@ use yew::{
 
 mod types;
 
-const AROUND: [(i32, i32); 8] = [
-  (-1, -1),
-  (0, -1),
-  (1, -1),
-  (1, 0),
-  (1, 1),
-  (0, 1),
-  (-1, 1),
-  (-1, 0),
-];
-
 const ROWS: i32 = 10;
 const COLS: i32 = 10;
 const TOTAL_MINES: i32 = 10;
+
+fn walk_around<F>(index: &i32, cb: &mut F)
+where
+  F: FnMut(&usize) -> (),
+{
+  let around = [
+    (-1, -1),
+    (0, -1),
+    (1, -1),
+    (1, 0),
+    (1, 1),
+    (0, 1),
+    (-1, 1),
+    (-1, 0),
+  ];
+  let border_arr = pickup_border(&index);
+
+  for (i, (x, y)) in around.iter().enumerate() {
+    if border_arr.contains(&i) {
+      continue;
+    }
+
+    let current = (index + (y * COLS) + x) as usize;
+    cb(&current);
+  }
+}
 
 fn init_values() -> Vec<i32> {
   let total = ROWS * COLS;
@@ -53,18 +68,11 @@ fn gen_mine_cells() -> Vec<Mine> {
       continue;
     }
 
-    let border_arr = pickup_border(&index);
-
-    for (i, (x, y)) in AROUND.iter().enumerate() {
-      if border_arr.contains(&i) {
-        continue;
+    walk_around(&index, &mut |current| {
+      if values[*current] < 9 {
+        result_values[*current] += 1;
       }
-      let current = (index + (y * COLS) + x) as usize;
-
-      if values[current] < 9 {
-        result_values[current] += 1;
-      }
-    }
+    });
   }
 
   value_to_cells(&result_values)
@@ -132,19 +140,11 @@ fn open_related_cells<'a>(cells: &'a mut Vec<Mine>, index: &'a usize) {
     let index = index as i32;
     let border_arr = pickup_border(&index);
 
-    for (i, (x, y)) in AROUND.iter().enumerate() {
-      if border_arr.contains(&i) {
-        continue;
+    walk_around(&index, &mut |current| {
+      if !cells[*current].is_open {
+        open_related_cells(cells, &current);
       }
-
-      let current = (index + (y * COLS) + x) as usize;
-
-      if cells[current].is_open {
-        continue;
-      }
-
-      open_related_cells(cells, &current);
-    }
+    });
   }
 }
 
@@ -198,9 +198,31 @@ pub fn mine_sweeper() -> Html {
   }
 
   let render_cell = |(index, item): (usize, &Mine)| {
-    let handle_opened_click = || {
-      // TODO: 处理已经打开的按钮点击事件
+    let handle_opened_click = move |index: &usize, cells: &mut Vec<Mine>| {
+      if let MineValue::Some(value) = cells[*index].value {
+        let mut flag_count = 0;
+
+        walk_around(&(*index as i32), &mut |current| {
+          let cell = &cells[*current];
+          if cell.flag {
+            flag_count += 1;
+          }
+        });
+
+        if value > flag_count {
+          // 未超过的时候，需要展示active状态
+          return;
+        }
+
+        walk_around(&(*index as i32), &mut |current| {
+          let cell = &mut cells[*current];
+          if !cell.flag && !cell.is_open {
+            cell.is_open = true;
+          }
+        });
+      }
     };
+
     // 点击事件处理
     let handle_click = {
       let cells = cells.clone();
@@ -209,15 +231,14 @@ pub fn mine_sweeper() -> Html {
         let mut new_cells = (*cells).clone();
         let cell = &mut new_cells[index];
         if cell.is_open {
-          handle_opened_click();
-          return;
-        }
-
-        if let MineValue::Mine(_) = cell.value {
-          cell.value = MineValue::Mine("mine_red".to_string());
-          open_all_cells(&mut new_cells);
+          handle_opened_click(&index, &mut new_cells);
         } else {
-          open_related_cells(&mut new_cells, &index);
+          if let MineValue::Mine(_) = cell.value {
+            cell.value = MineValue::Mine("mine_red".to_string());
+            open_all_cells(&mut new_cells);
+          } else {
+            open_related_cells(&mut new_cells, &index);
+          }
         }
 
         cells.set(new_cells);
@@ -229,11 +250,12 @@ pub fn mine_sweeper() -> Html {
       Callback::from(move |_| {
         let mut new_cells = (*cells).clone();
         let cell = &mut new_cells[index];
+
         if cell.is_open {
-          handle_opened_click();
-          return;
+          handle_opened_click(&index, &mut new_cells);
+        } else {
+          cell.flag = !cell.flag;
         }
-        cell.flag = !cell.flag;
         cells.set(new_cells);
       })
     };
