@@ -1,6 +1,6 @@
 use number::Number;
 use rand::{thread_rng, Rng};
-use types::{GameState, Mine, MineValue};
+use types::{GameState, Level, LevelType, Mine, MineValue};
 use uuid::Uuid;
 use yew::{
   classes, function_component, html, use_effect_with_deps, use_state, Callback, Html, MouseEvent,
@@ -162,6 +162,21 @@ pub fn mine_sweeper() -> Html {
   let state = use_state(|| GameState::Gamimg);
   let mines = use_state(|| TOTAL_MINES);
   let countdown = use_state(|| COUNTDOWN);
+  let level = use_state(|| String::from("简单"));
+  let levels = [
+    LevelType {
+      level: Level::Easy,
+      label: String::from("简单"),
+    },
+    LevelType {
+      level: Level::Medium,
+      label: String::from("中等"),
+    },
+    LevelType {
+      level: Level::Easy,
+      label: String::from("困难"),
+    },
+  ];
 
   let handle_contextmenu = {
     Callback::from(|e: MouseEvent| {
@@ -329,8 +344,31 @@ pub fn mine_sweeper() -> Html {
     })
   };
 
+  let render_buttons = |item: &LevelType| {
+    let handle_click = {
+      let level = item.level;
+      Callback::from(move |_| {
+        match level {
+          Level::Easy => {
+            // TODO
+          }
+          Level::Medium => {
+            // TODO
+          }
+          Level::Hard => {
+            // TODO
+          }
+        };
+      })
+    };
+
+    html! {<button type="button" onclick={handle_click}>{&item.label}</button>
+    }
+  };
+
   html! {
     <>
+      {levels.iter().map(render_buttons).collect::<Html>()}
       <div class="flex">
         <div class="up_left" />
         <div class="hor w-240px" />
