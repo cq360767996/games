@@ -1,3 +1,4 @@
+use number::Number;
 use rand::{thread_rng, Rng};
 use types::{GameState, Mine, MineValue};
 use uuid::Uuid;
@@ -5,11 +6,13 @@ use yew::{
   classes, function_component, html, use_effect_with_deps, use_state, Callback, Html, MouseEvent,
 };
 
+mod number;
 mod types;
 
 const ROWS: i32 = 10;
 const COLS: i32 = 10;
 const TOTAL_MINES: i32 = 10;
+const COUNTDOWN: i32 = 999;
 
 fn walk_around<F>(index: &i32, cb: &mut F)
 where
@@ -138,7 +141,6 @@ fn open_related_cells<'a>(cells: &'a mut Vec<Mine>, index: &'a usize) {
   cells[index].is_open = true;
   if let MineValue::Some(0) = cells[index].value {
     let index = index as i32;
-    let border_arr = pickup_border(&index);
 
     walk_around(&index, &mut |current| {
       if !cells[*current].is_open {
@@ -158,6 +160,8 @@ fn open_all_cells(cells: &mut Vec<Mine>) {
 pub fn mine_sweeper() -> Html {
   let cells = use_state(gen_mine_cells);
   let state = use_state(|| GameState::Gamimg);
+  let mines = use_state(|| TOTAL_MINES);
+  let countdown = use_state(|| COUNTDOWN);
 
   let handle_contextmenu = {
     Callback::from(|e: MouseEvent| {
@@ -168,10 +172,14 @@ pub fn mine_sweeper() -> Html {
   {
     let cells = cells.clone();
     let state = state.clone();
+    let mines = mines.clone();
+
     use_effect_with_deps(
       move |cells| {
         let mut st = GameState::Win;
         let mut closed_count = 0;
+        let mut flaged_mines = 0;
+
         for cell in cells.iter() {
           if let MineValue::Mine(value) = &cell.value {
             if value.eq("mine_red") {
@@ -189,8 +197,17 @@ pub fn mine_sweeper() -> Html {
           }
         }
 
-        state.set(st);
+        for cell in cells.iter() {
+          // 统计剩余的雷数
+          if cell.flag {
+            flaged_mines += 1;
+          }
+        }
 
+        state.set(st);
+        let mut remain_mines = TOTAL_MINES - flaged_mines;
+        remain_mines = if remain_mines < 0 { 0 } else { remain_mines };
+        mines.set(remain_mines);
         || ()
       },
       cells,
@@ -291,18 +308,29 @@ pub fn mine_sweeper() -> Html {
     }
   };
 
+  let get_face_class_name = || {
+    let mut class_names = vec!["face"];
+    let state_name = match *state {
+      GameState::Gamimg => "unpressed",
+      GameState::Lose => "lose",
+      GameState::Win => "win",
+    };
+    class_names.push(state_name);
+    classes!(class_names)
+  };
+
+  let handle_reset = {
+    let state = state.clone();
+    let cells = cells.clone();
+
+    Callback::from(move |_| {
+      state.set(GameState::Gamimg);
+      cells.set(gen_mine_cells());
+    })
+  };
+
   html! {
     <>
-      <div>
-        {
-          match *state {
-            GameState::Gamimg => "游戏中",
-            GameState::Lose => "你输了",
-            GameState::Win => "你赢了",
-          }
-        }
-      </div>
-
       <div class="flex">
         <div class="up_left" />
         <div class="hor w-240px" />
@@ -311,16 +339,10 @@ pub fn mine_sweeper() -> Html {
       <div class="flex">
         <div class="vert h-40px"/>
         <div class="silver w-240px flex justify-between px-4.5px items-center box-border">
+          <Number time={*mines} is_countdown=false />
+          <div class={get_face_class_name()} onclick={handle_reset} />
           <div class="nums flex justify-around items-center">
-            <div class="num d1" />
-            <div class="num d2" />
-            <div class="num d3" />
-          </div>
-          <div class="face"></div>
-          <div class="nums flex justify-around items-center">
-            <div class="num d4" />
-            <div class="num d5" />
-            <div class="num d6" />
+          <Number time={*countdown} is_countdown=true />
           </div>
         </div>
         <div class="vert h-40px" />

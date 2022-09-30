@@ -1,5 +1,4 @@
 .cell {
-  cursor: pointer;
   text-align: center;
   width: 24px;
   height: 24px;
@@ -74,7 +73,9 @@ $sides: t_left, t_right;
   $faces: unpressed, lose, win;
 
   @each $face in $faces {
-    background-image: url(./assets/face_#{$face}.svg);
+    &.#{$face} {
+      background-image: url(./assets/face_#{$face}.svg);
+    }
   }
 }
 
