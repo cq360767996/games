@@ -17,16 +17,3 @@ pub enum GameState {
   Lose,
   Win,
 }
-
-#[derive(Clone, Debug, Copy)]
-pub enum Level {
-  Easy,
-  Medium,
-  Hard,
-}
-
-#[derive(Clone, Debug)]
-pub struct LevelType {
-  pub level: Level,
-  pub label: String,
-}

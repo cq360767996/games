@@ -90,3 +90,38 @@ $sides: t_left, t_right;
     background-image: url(./assets/d#{$i}.svg);
   }
 }
+
+.width {
+  width: calc(100% - 36px);
+}
+
+.height {
+  height: calc(100% - 36px);
+}
+
+.buttons {
+  display: inline-flex;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+}
+
+.button {
+  padding: 4px 8px;
+  border-right: 1px solid #3b82f6;
+  cursor: pointer;
+
+  &:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+
+  &:last-child {
+    border-right: 0;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+
+  &.actived {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+}
