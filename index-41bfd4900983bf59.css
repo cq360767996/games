@@ -1,0 +1,209 @@
+.cell {
+  text-align: center;
+  width: 24px;
+  height: 24px;
+  background-image: url(./assets/closed.svg);
+  background-size: cover;
+}
+.cell:not(.opened):active {
+  background-image: url(./assets/type0.svg);
+}
+.cell.closed {
+  background-image: url(./assets/closed.svg);
+}
+.cell.flag {
+  background-image: url(./assets/flag.svg);
+}
+.cell.mine_red {
+  background-image: url(./assets/mine_red.svg);
+}
+.cell.mine {
+  background-image: url(./assets/mine.svg);
+}
+.cell.type0 {
+  background-image: url(./assets/type0.svg);
+}
+.cell.type1 {
+  background-image: url(./assets/type1.svg);
+}
+.cell.type2 {
+  background-image: url(./assets/type2.svg);
+}
+.cell.type3 {
+  background-image: url(./assets/type3.svg);
+}
+.cell.type4 {
+  background-image: url(./assets/type4.svg);
+}
+.cell.type5 {
+  background-image: url(./assets/type5.svg);
+}
+.cell.type6 {
+  background-image: url(./assets/type6.svg);
+}
+.cell.type7 {
+  background-image: url(./assets/type7.svg);
+}
+.cell.type8 {
+  background-image: url(./assets/type8.svg);
+}
+
+.hor {
+  background-image: url(./assets/border_hor_2x.png);
+  background-size: 100% 100%;
+  border-collapse: separate;
+  height: 16.5px;
+}
+
+.vert {
+  background-image: url(./assets/border_vert_2x.png);
+  background-size: 100% 100%;
+  border-collapse: separate;
+  width: 18px;
+}
+
+.bottom_left {
+  width: 18px;
+  height: 16.5px;
+  background-size: 100% 100%;
+  background-image: url(./assets/corner_bottom_left_2x.png);
+}
+
+.bottom_right {
+  width: 18px;
+  height: 16.5px;
+  background-size: 100% 100%;
+  background-image: url(./assets/corner_bottom_right_2x.png);
+}
+
+.up_left {
+  width: 18px;
+  height: 16.5px;
+  background-size: 100% 100%;
+  background-image: url(./assets/corner_up_left_2x.png);
+}
+
+.up_right {
+  width: 18px;
+  height: 16.5px;
+  background-size: 100% 100%;
+  background-image: url(./assets/corner_up_right_2x.png);
+}
+
+.t_left {
+  width: 18px;
+  height: 16.5px;
+  background-size: 100% 100%;
+  background-image: url(./assets/t_left_2x.png);
+}
+
+.t_right {
+  width: 18px;
+  height: 16.5px;
+  background-size: 100% 100%;
+  background-image: url(./assets/t_right_2x.png);
+}
+
+.silver {
+  background-color: silver;
+}
+
+.nums {
+  background-image: url(./assets/nums_background.svg);
+  background-size: 100% 100%;
+  width: 61px;
+  height: 37.5px;
+}
+
+.face {
+  width: 31.5px;
+  height: 31.5px;
+  background-size: 100% 100%;
+}
+.face.unpressed {
+  background-image: url(./assets/face_unpressed.svg);
+}
+.face.lose {
+  background-image: url(./assets/face_lose.svg);
+}
+.face.win {
+  background-image: url(./assets/face_win.svg);
+}
+
+.num {
+  width: 16.5px;
+  height: 31.5px;
+  background-size: 100% 100%;
+}
+
+.d0 {
+  background-image: url(./assets/d0.svg);
+}
+
+.d1 {
+  background-image: url(./assets/d1.svg);
+}
+
+.d2 {
+  background-image: url(./assets/d2.svg);
+}
+
+.d3 {
+  background-image: url(./assets/d3.svg);
+}
+
+.d4 {
+  background-image: url(./assets/d4.svg);
+}
+
+.d5 {
+  background-image: url(./assets/d5.svg);
+}
+
+.d6 {
+  background-image: url(./assets/d6.svg);
+}
+
+.d7 {
+  background-image: url(./assets/d7.svg);
+}
+
+.d8 {
+  background-image: url(./assets/d8.svg);
+}
+
+.d9 {
+  background-image: url(./assets/d9.svg);
+}
+
+.width {
+  width: calc(100% - 36px);
+}
+
+.height {
+  height: calc(100% - 36px);
+}
+
+.buttons {
+  display: inline-flex;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+}
+
+.button {
+  padding: 4px 8px;
+  border-right: 1px solid #3b82f6;
+  cursor: pointer;
+}
+.button:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.button:last-child {
+  border-right: 0;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.button.actived {
+  background-color: rgba(59, 130, 246, 0.2);
+}
