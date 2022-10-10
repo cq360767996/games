@@ -52,6 +52,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "games"
+version = "0.1.0"
+dependencies = [
+ "getrandom",
+ "log",
+ "rand",
+ "stylist",
+ "uuid",
+ "wasm-logger",
+ "web-sys",
+ "yew",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -630,20 +644,6 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "yew-macro",
-]
-
-[[package]]
-name = "yew-app"
-version = "0.1.0"
-dependencies = [
- "getrandom",
- "log",
- "rand",
- "stylist",
- "uuid",
- "wasm-logger",
- "web-sys",
- "yew",
 ]
 
 [[package]]

@@ -1,15 +1,15 @@
 {
-  "name": "yew-app",
+  "name": "games",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"windicss -d -f windi.config.js -o ./src/style/windi.css\" \"trunk serve\"",
-    "build": "windicss -f windi.config.js -o ./src/style/windi.css && trunk build"
+    "build": "windicss -f windi.config.js -o ./src/style/windi.css && trunk build --public-url=games"
   },
   "repository": {
     "type": "git",
-    "url": "https://gitee.com/cq360/yew-app.git"
+    "url": "https://github.com/cq360767996/games.git"
   },
   "keywords": [],
   "author": "",
